@@ -125,4 +125,4 @@ weather-app/
 ![History Screen](./src/assets/screenshots/history_screen.png)
 
 ### 🌙 Dark Mode
-![Dark Mode](./assets/screenshots/dark-mode.png)
+![Dark Mode](./src/assets/screenshots/dark_screen.png)
