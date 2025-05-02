@@ -1,39 +1,62 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, ActivityIndicator, Modal, FlatList, TouchableOpacity, Text, TouchableWithoutFeedback, Keyboard, ScrollView, Switch } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View, StyleSheet, TextInput, ActivityIndicator, Modal,
+    FlatList, TouchableOpacity, Text, Switch
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWeatherStart, fetchWeatherSuccess, fetchWeatherFailure } from '../redux/weatherSlice';
+import {
+    fetchWeatherStart, fetchWeatherSuccess, fetchWeatherFailure
+} from '../redux/weatherSlice';
 import { setTheme } from '../redux/themeSlice';
 import { addSearchHistory } from '../redux/searchHistorySlice';
 import { getCoordsByCity, getWeatherByCoords } from '../services/weatherService';
 import WeatherCard from '../components/WeatherCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
     const [city, setCity] = useState('');
+    const [searchedCity, setSearchedCity] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-    const [searching, setSearching] = useState(false);  // Track if search is in progress
+    const [searching, setSearching] = useState(false);
+
     const dispatch = useDispatch();
     const { weather, loading, error } = useSelector((state: any) => state.weather);
     const { darkMode } = useSelector((state: any) => state.theme);
     const { history } = useSelector((state: any) => state.searchHistory);
 
+    // Load last searched city and weather on mount
+    useEffect(() => {
+        (async () => {
+            const storedCity = await AsyncStorage.getItem('lastCity');
+            if (storedCity) {
+                setSearchedCity(storedCity);
+                try {
+                    dispatch(fetchWeatherStart());
+                    const coords = await getCoordsByCity(storedCity);
+                    const updatedWeather = await getWeatherByCoords(coords.lat, coords.lon);
+                    dispatch(fetchWeatherSuccess(updatedWeather));
+                } catch (err) {
+                    dispatch(fetchWeatherFailure(err.message));
+                }
+            }
+        })();
+    }, []);
+
     const handleFetchWeather = async () => {
         if (!city.trim()) return;
 
-        if (searching) {
-            // Reset everything if the search is cancelled
-            setCity('');
-            setSearching(false);
-            dispatch(fetchWeatherSuccess(null));
-            return;
-        }
 
         try {
-            setSearching(true);  // Start searching
+            setSearching(true);
             dispatch(fetchWeatherStart());
             const coords = await getCoordsByCity(city);
             const weatherData = await getWeatherByCoords(coords.lat, coords.lon);
             dispatch(fetchWeatherSuccess(weatherData));
             dispatch(addSearchHistory({ city, weather: weatherData }));
+            setSearchedCity(city);
+            await AsyncStorage.setItem('lastCity', city);
+            setCity('');
+
         } catch (err) {
             dispatch(fetchWeatherFailure(err.message));
         }
@@ -43,26 +66,26 @@ const HomeScreen = () => {
         const cityWeather = history.find((item: any) => item.city === city);
         if (cityWeather) {
             dispatch(fetchWeatherSuccess(cityWeather.weather));
+            setSearchedCity(city);
+            AsyncStorage.setItem('lastCity', city);
         }
+        setModalVisible(false);
     };
 
     return (
         <View style={[styles.container, darkMode && styles.darkContainer]}>
-
-            {/* Top Bar with Dark Mode toggle */}
             <View style={[styles.topBar, darkMode && styles.darkTopBar]}>
+                <Text style={[styles.topBarText, darkMode && styles.darkTopBarText]}>
+                    Weather App
+                </Text>
                 <Switch
                     value={darkMode}
                     onValueChange={() => dispatch(setTheme(!darkMode))}
                     thumbColor={darkMode ? '#fff' : '#000'}
                     trackColor={{ false: '#767577', true: '#81b0ff' }}
                 />
-                <Text style={[styles.topBarText, darkMode && styles.darkTopBarText]}>
-                    Weather App
-                </Text>
             </View>
 
-            {/* Search bar and button in one line */}
             <View style={styles.searchBarContainer}>
                 <TextInput
                     style={[styles.input, darkMode && styles.darkInput]}
@@ -72,27 +95,29 @@ const HomeScreen = () => {
                     placeholderTextColor={darkMode ? '#ccc' : '#555'}
                     returnKeyType="search"
                     onSubmitEditing={handleFetchWeather}
-                    editable={!searching}  // Disable input while searching
                 />
                 <TouchableOpacity
                     onPress={handleFetchWeather}
                     style={[styles.searchButton, darkMode && styles.darkButton]}
-                    disabled={!city.trim() && !searching}  // Disable if no input and not searching
+                    disabled={!city.trim() && !searching}
                 >
                     <Text style={[styles.searchButtonText, darkMode && styles.darkButtonText]}>
-                        {searching ? 'Cancel' : 'Get Weather'}
+                        Get Weather
                     </Text>
                 </TouchableOpacity>
             </View>
 
-            {/* Loading and error handling */}
             {loading && <ActivityIndicator size="large" color={darkMode ? '#fff' : '#000'} />}
             {error && !loading && <Text style={styles.error}>{error}</Text>}
 
-            {/* Weather Info Display */}
+            {searchedCity && !loading && !error && (
+                <Text style={[styles.cityName, darkMode && { color: '#fff' }]}>
+                    Showing Weather For: {searchedCity}
+                </Text>
+            )}
+
             {weather && !loading && !error && (
-                <View style={{ paddingBottom: '55%' }}>
-                    <Text style={[styles.cityName, { fontWeight: 'bold' }]}>{weather.name}</Text>
+                <View style={styles.lastSearchContainer}>
                     <WeatherCard weather={weather} />
                 </View>
             )}
@@ -102,11 +127,12 @@ const HomeScreen = () => {
                     onPress={() => setModalVisible(true)}
                     style={[styles.historyButton, darkMode && styles.darkButton]}
                 >
-                    <Text style={[styles.historyButtonText, darkMode && styles.darkButtonText]}>View Search History</Text>
+                    <Text style={[styles.historyButtonText, darkMode && styles.darkButtonText]}>
+                        View Search History
+                    </Text>
                 </TouchableOpacity>
             )}
 
-            {/* Search History Modal */}
             <Modal visible={modalVisible} onRequestClose={() => setModalVisible(false)} animationType="slide">
                 <FlatList
                     data={history}
@@ -121,30 +147,25 @@ const HomeScreen = () => {
                     <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
             </Modal>
-
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingHorizontal: 16, // Apply horizontal padding only
-        position: 'relative',
-        paddingTop: 20, // Adjust for top padding
+        paddingHorizontal: 16,
+        paddingTop: 20,
     },
     darkContainer: { backgroundColor: '#333' },
-
-    // Top Bar with Dark Mode toggle
     topBar: {
         width: '100%',
-        paddingTop: 40, // Space for status bar
+        paddingTop: 40,
         paddingBottom: 10,
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: "space-between",
         alignItems: 'center',
         backgroundColor: '#f9f9f9',
         borderBottomWidth: 1,
@@ -160,19 +181,17 @@ const styles = StyleSheet.create({
         color: '#000'
     },
     darkTopBarText: { color: '#fff' },
-
-    // Search bar and button in one line
     searchBarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 80, // Adjust to position below the top bar
+        marginTop: 80,
         width: '100%',
     },
     input: {
         width: '70%',
         padding: 12,
-        marginRight: 10, // Space between input and button
+        marginRight: 10,
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 8,
@@ -195,18 +214,16 @@ const styles = StyleSheet.create({
     },
     searchButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
     },
     darkButtonText: {
         color: '#fff',
     },
-
     error: {
         color: 'red',
         marginTop: 10
     },
-
     lastSearchContainer: {
         marginTop: 20,
         padding: 16,
@@ -217,27 +234,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
         elevation: 5,
-        marginBottom: 20, // Add bottom margin to prevent overlap
+        marginBottom: '68%',
+        zIndex: 1
     },
-
     cityName: {
-        fontSize: 20
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10
     },
-
-    scrollViewContainer: {
-        width: '100%',
-    },
-
-    scrollContentContainer: {
-        paddingBottom: 100, // Space at the bottom of the ScrollView
-    },
-
-    weatherCardContainer: {
-        marginTop: 10,
-        paddingBottom: 20, // Add bottom padding to WeatherCard
-    },
-
-    // History Modal Styles
     historyButton: {
         position: 'absolute',
         bottom: 20,
@@ -247,26 +252,20 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 25,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3.5,
         elevation: 4,
-        zIndex:10
+        zIndex: 100
     },
     historyButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
     },
-
     historyItem: {
         padding: 10,
         backgroundColor: '#f0f0f0',
         borderBottomWidth: 1,
         borderColor: '#ddd'
     },
-
     closeButton: {
         backgroundColor: '#FF6347',
         paddingVertical: 10,

@@ -1,6 +1,6 @@
-// src/services/weatherService.ts
+import { CityCoords } from "../types/CityCoords";
 
-interface WeatherData {
+export interface WeatherData {
   current: {
     temp: number;
     feels_like: number;
@@ -35,18 +35,13 @@ interface WeatherData {
   }>;
 }
 
-interface CityCoords {
-  lat: number;
-  lon: number;
-  name: string;
-}
-
 export const getCoordsByCity = async (city: string): Promise<CityCoords> => {
-  const API_KEY = '928226e905344bccbd9c79dcb0adc1b8';
+  const API_KEY = process.env.REACT_NATIVE_OPENCAGE_API_KEY;
   const query = encodeURIComponent(city);
 
+  // Used Static URL here because You can test the app with URL
   const response = await fetch(
-    `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=${API_KEY}&language=en`
+    `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=${API_KEY}&language=en`,
   );
 
   const data = await response.json();
@@ -64,14 +59,18 @@ export const getCoordsByCity = async (city: string): Promise<CityCoords> => {
   };
 };
 
-export const getWeatherByCoords = async (lat: number, lon: number): Promise<WeatherData> => {
-  const API_KEY = '5ce13d67968afe8e61db635add70decf'; // Use environment variable for API key
-  const exclude = 'minutely'; // Exclude parts you don't need
-  console.log('lat:::',lat);
-  console.log('lon:::',lon);
-  console.log(':::>>>>', `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=${exclude}&appid=${API_KEY}`);
+export const getWeatherByCoords = async (
+  lat: number,
+  lon: number,
+): Promise<WeatherData> => {
+  const API_KEY = process.env.REACT_NATIVE_OPENWEATHER_API_KEY;
+  const exclude = 'minutely';
+
+  // Used Static URL here because You can test the app with URL
   try {
-    const response = await fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=${exclude}&units=metric&appid=${API_KEY}`);
+    const response = await fetch(
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=${exclude}&units=metric&appid=${API_KEY}`,
+    );
     const data = await response.json();
 
     if (!response.ok) {

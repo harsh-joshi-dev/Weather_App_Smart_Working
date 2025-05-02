@@ -1,52 +1,17 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 import { useAppSelector } from '../redux/hooks';
-
-interface WeatherCardProps {
-    weather: {
-        timezone: string;
-        current: {
-            temp: number;
-            weather: { description: string; icon: string }[];
-            humidity: number;
-            wind_speed: number;
-            wind_deg: number;
-            wind_gust: number;
-            dew_point: number;
-            pressure: number;
-            visibility: number;
-            uvi: number;
-            rain: { '1h': number };
-        };
-        minutely: {
-            dt: number;
-            temp: number;
-            weather: { description: string; icon: string };
-        }[];
-        daily: {
-            dt: number;
-            temp: {
-                day: number;
-                min: number;
-                max: number;
-            };
-            weather: { description: string; icon: string }[];
-            summary: string;
-        }[];
-    };
-}
+import { WeatherCardProps } from '../types/WeatherTypes';
 
 const WeatherCard: React.FC<WeatherCardProps> = React.memo(({ weather }) => {
     const { darkMode } = useAppSelector(state => state.theme);
-    console.log("weather::",weather);
+
     return (
         <ScrollView style={[styles.card, darkMode && styles.darkCard]}>
-            {/* Display City and Timezone */}
             <Text style={[styles.city, darkMode && styles.darkText]}>
                 {weather.timezone}
             </Text>
 
-            {/* Display Current Weather */}
             <View style={styles.currentContainer}>
                 <Text style={[styles.currentTitle, darkMode && styles.darkText]}>Current</Text>
                 <Text style={[styles.currentTemp, darkMode && styles.darkText]}>
@@ -64,7 +29,6 @@ const WeatherCard: React.FC<WeatherCardProps> = React.memo(({ weather }) => {
                     </Text>
                 </View>
 
-                {/* Display Rain (if any) */}
                 {weather.current.rain && weather.current.rain['1h'] > 0 && (
                     <Text style={[styles.extraInfo, darkMode && styles.darkText]}>
                         Rain: {weather.current.rain['1h']} mm in the last hour
@@ -72,7 +36,6 @@ const WeatherCard: React.FC<WeatherCardProps> = React.memo(({ weather }) => {
                 )}
             </View>
 
-            {/* Display Daily Forecast */}
             <View style={styles.dailyContainer}>
                 <Text style={[styles.dailyTitle, darkMode && styles.darkText]}>
                     Day-wise Forecast:
@@ -123,6 +86,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 5,
+        zIndex: 1
     },
     city: {
         fontSize: 26,

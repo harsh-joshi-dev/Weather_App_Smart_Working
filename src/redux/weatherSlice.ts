@@ -1,11 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { WeatherData } from '../services/weatherService';
-
-interface WeatherState {
-  weather: WeatherData | null;
-  loading: boolean;
-  error: string | null;
-}
+import { WeatherState } from '../types/WeatherState';
 
 const initialState: WeatherState = {
   weather: null,

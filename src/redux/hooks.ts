@@ -3,17 +3,9 @@ import type { RootState, AppDispatch } from './store';
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-// src/redux/weatherSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import weatherService, { getCoordsByCity } from '../services/weatherService';
-// import { getCoordsByCity } from '../utils/getCoordsByCity';
-
-interface WeatherState {
-  weather: any;
-  loading: boolean;
-  error: string | null;
-}
+import { getCoordsByCity } from '../services/weatherService';
+import { WeatherState } from '../types/WeatherState';
 
 const initialState: WeatherState = {
   weather: null,
