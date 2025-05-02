@@ -74,7 +74,7 @@ Uses Jest and @testing-library/react-native for unit testing.
 - **Redux Layer**: Manages all app-wide state like weather, theme, and history.
 - **Service Layer**: Centralized API logic (`weatherService.ts`).
 - **Custom Hooks**: Support reusable business logic between components.
-- **Styling Layer**: Styles are kept modular and centralized (`styles/`).
+- **Styling Layer**: Styles are kept modular and centralized (`StyleSheet`).
 - **Configuration**: All sensitive or environment-specific values are stored in `.env`.
 
 This architecture provides clean separation of concerns, scalability, testability, and maintainability.
@@ -88,8 +88,10 @@ weather-app/
 ├── screens/            # App screens (e.g., HomeScreen)
 ├── redux/              # Redux store and slices
 ├── services/           # API service logic
+├── assets/             # Stored all screenshots
 ├── styles/             # Modular styling files
-├── hooks/              # Reusable logic (optional)
+├── hooks/              # Reusable logic
+├── types/              # Typescript Types Interfaces
 ├── App.tsx             # Root component
 ├── .env                # API keys
 └── README.md           # Documentation
