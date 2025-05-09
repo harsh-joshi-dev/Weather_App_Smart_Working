@@ -114,17 +114,8 @@ weather-app/
 
 ## Screenshots
 
-### City Home Screen
-![Home Screen](./src/assets/screenshots/home_screen.png)
-
-### City One Screen
-![Searched City One Screen](./src/assets/screenshots/city_1.png)
-
-### City Two Screen
-![Searched City Two Screen](./src/assets/screenshots/city_2.png)
-
-### History Screen
-![History Screen](./src/assets/screenshots/history_screen.png)
+### Light Mode
+![Home Screen](./src/assets/screenshots/light_theme.png)
 
 ### 🌙 Dark Mode
-![Dark Mode](./src/assets/screenshots/dark_screen.png)
+![Home Screen](./src/assets/screenshots/dark_theme.png)
