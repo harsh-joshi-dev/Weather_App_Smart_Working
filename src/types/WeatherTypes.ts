@@ -30,4 +30,5 @@ export interface WeatherCardProps {
             summary: string;
         }[];
     };
+    searchedCity: string;
 }

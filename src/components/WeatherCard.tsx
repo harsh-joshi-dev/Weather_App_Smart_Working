@@ -1,79 +1,49 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useAppSelector } from '../redux/hooks';
 import { WeatherCardProps } from '../types/WeatherTypes';
-import WeatherComponentStyles from '../styles/WeatherCardStyles';
+import createStyles from '../styles/WeatherCardStyles';
 
-const WeatherCard: React.FC<WeatherCardProps> = React.memo(({ weather }) => {
+const WeatherCard: React.FC<WeatherCardProps> = React.memo(({ weather, searchedCity }) => {
     const { darkMode } = useAppSelector(state => state.theme);
-    const styles = WeatherComponentStyles(darkMode);
-    
+    const styles = createStyles(darkMode);
+
+    const current = weather.current;
+    const description = current.weather[0].description;
+    const icon = current.weather[0].icon;
+    const time = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+
     return (
-        <ScrollView style={[styles.card, darkMode && styles.darkCard]}>
-            <Text style={[styles.city, darkMode && styles.darkText]}>
-                {weather.timezone}
-            </Text>
-
-            <View style={styles.currentContainer}>
-                <Text style={[styles.currentTitle, darkMode && styles.darkText]}>Current</Text>
-                <Text style={[styles.currentTemp, darkMode && styles.darkText]}>
-                    {weather.current.temp.toFixed(1)}°C
+        <View style={[styles.card, darkMode && styles.cardDark]}>
+            <View style={styles.leftSection}>
+                <Text style={[styles.city, darkMode && styles.textWhite]}>
+                    {searchedCity}
                 </Text>
-                <View style={styles.weatherDescription}>
-                    <Image
-                        source={{
-                            uri: `https://openweathermap.org/img/wn/${weather.current.weather[0].icon}@2x.png`,
-                        }}
-                        style={styles.icon}
-                    />
-                    <Text style={[styles.currentDescription, darkMode && styles.darkText]}>
-                        {weather.current.weather[0].description}
-                    </Text>
-                </View>
-
-                {weather.current.rain && weather.current.rain['1h'] > 0 && (
-                    <Text style={[styles.extraInfo, darkMode && styles.darkText]}>
-                        Rain: {weather.current.rain['1h']} mm in the last hour
-                    </Text>
-                )}
+                <Text style={[styles.timezone, darkMode && styles.textGrey]}>
+                    {weather.timezone}
+                </Text>
+                <Text style={[styles.temp, darkMode && styles.textWhite]}>
+                    {current.temp.toFixed(1)}°C
+                </Text>
+                <Text style={[styles.observed, darkMode && styles.textGrey]}>
+                    Observed at {time}
+                </Text>
             </View>
 
-            <View style={styles.dailyContainer}>
-                <Text style={[styles.dailyTitle, darkMode && styles.darkText]}>
-                    Day-wise Forecast:
+            <View style={styles.rightSection}>
+                <Image
+                    source={{ uri: `https://openweathermap.org/img/wn/${icon}@2x.png` }}
+                    style={styles.weatherIcon}
+                />
+                <Text style={[styles.description, darkMode && styles.textWhite]}>
+                    {description}
                 </Text>
-                {weather.daily.map((day, index) => (
-                    <View key={index} style={[styles.dailyCard, darkMode && styles.darkCard]}>
-                        <Text style={[styles.dailyDate, darkMode && styles.darkText]}>
-                            {new Date(day.dt * 1000).toLocaleDateString([], {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
-                        </Text>
-
-                        <View style={styles.dailyTempContainer}>
-                            <Image
-                                source={{
-                                    uri: `https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`,
-                                }}
-                                style={styles.icon}
-                            />
-                            <Text style={[styles.dailyTemp, darkMode && styles.darkText]}>
-                                {day.temp.day.toFixed(1)}°C
-                            </Text>
-                        </View>
-                        <Text style={[styles.dailyDescription, darkMode && styles.darkText]}>
-                            ({day.weather[0].description})
-                        </Text>
-                        <Text style={[styles.dailySummary, darkMode && styles.darkText]}>
-                            {day.summary}
-                        </Text>
-                    </View>
-                ))}
             </View>
-        </ScrollView>
+        </View>
     );
 });
 

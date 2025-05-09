@@ -1,118 +1,70 @@
 import { StyleSheet } from 'react-native';
 
-const WeatherComponentStyles = (darkMode: boolean) => {
-    return StyleSheet.create({
+const createStyles = (darkMode: boolean) =>
+    StyleSheet.create({
         card: {
-            backgroundColor: darkMode ? '#333' : '#ffffff',
-            padding: 20,
-            borderRadius: 10,
-            marginTop: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 5,
-            zIndex: 1
+            width: '100%',
+            padding: 10,
+            backgroundColor: '#fff',
+            borderRadius: 15,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+        },
+        cardDark: {
+            backgroundColor: '#1e1e1e',
+        },
+        leftSection: {
+            padding: 7,
+        },
+        rightSection: {
+            padding: 5,
+            alignSelf: 'center',
+            alignItems: 'center',
+            marginEnd: 10,
         },
         city: {
-            fontSize: 26,
-            fontWeight: 'bold',
-            marginBottom: 10,
-            textAlign: 'center',
-            color: darkMode ? '#ffffff' : '#333',
+            fontSize: 32,
+            fontWeight: '700',
         },
-        currentContainer: {
-            alignItems: 'center',
-            marginBottom: 20,
-        },
-        currentTitle: {
-            fontSize: 24,
-            fontWeight: 'bold',
-            marginBottom: 10,
-            color: darkMode ? '#ffffff' : '#333',
-        },
-        currentTemp: {
-            fontSize: 45,
-            fontWeight: '600',
-            color: '#FF7F32',
-        },
-        weatherDescription: {
-            flexDirection: 'row',
+        timezone: {
+            fontSize: 21,
             marginTop: 10,
-            alignItems: 'center',
-        },
-        currentDescription: {
-            fontSize: 18,
-            fontStyle: 'italic',
-            color: darkMode ? '#ffffff' : '#666',
-            marginStart: 8,
-            bottom: 5,
-        },
-        extraInfo: {
-            fontSize: 16,
-            marginTop: 5,
-            color: darkMode ? '#ffffff' : '#444',
-        },
-        dailyContainer: {
-            marginTop: 20,
-            width: '100%',
-        },
-        dailyTitle: {
-            fontSize: 18,
-            fontWeight: 'bold',
-            marginBottom: 10,
-            color: darkMode ? '#ffffff' : '#333',
-        },
-        dailyCard: {
-            backgroundColor: darkMode ? '#333' : '#f9f9f9',
-            padding: 15,
-            borderRadius: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 5,
-            marginBottom: 25,
-        },
-        dailyDate: {
-            fontSize: 18,
-            fontWeight: 'bold',
-            marginBottom: 10,
-            color: darkMode ? '#ffffff' : '#333',
-        },
-        dailyTempContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 10,
-        },
-        dailyTemp: {
-            fontSize: 24,
             fontWeight: '600',
-            color: darkMode ? '#ffffff' : '#333',
-            marginStart: 7,
+            color: 'grey',
         },
-        dailyDescription: {
+        temp: {
+            fontSize: 33,
+            marginTop: 12,
+            fontWeight: '800',
+            color: '#000',
+        },
+        observed: {
             fontSize: 16,
+            marginTop: 10,
             fontStyle: 'italic',
-            marginBottom: 5,
-            color: darkMode ? '#ffffff' : '#666',
+            fontWeight: '500',
+            color: 'grey',
         },
-        dailySummary: {
-            fontSize: 14,
-            textAlign: 'center',
-            color: darkMode ? '#ffffff' : '#666',
-        },
-        icon: {
-            width: 45,
-            height: 45,
-            backgroundColor: '#ddd',
+        weatherIcon: {
+            width: 75,
+            height: 75,
             borderRadius: 50,
-            padding: 5,
+            backgroundColor: '#ddd',
             marginBottom: 10,
+        },
+        description: {
+            fontSize: 20,
+            marginTop: 5,
+            maxWidth: 100,
+            textAlign: 'center',
+            color: '#000',
+        },
+        textWhite: {
+            color: '#fff',
+        },
+        textGrey: {
+            color: '#bbb',
         },
     });
-};
 
-export default WeatherComponentStyles;
+export default createStyles;
